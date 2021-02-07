@@ -1,0 +1,206 @@
+{% load static %}
+{% load functions_extras %}
+<!DOCTYPE html>
+<html lang="fr">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport">
+		<meta name="description" content="">
+		<link rel="icon" href="/media/images/SI.png">
+		<meta name="author" content="TSOLEGNAGBO Kossi">
+		<link rel="stylesheet" href="{% static 'css/mains.css' %}">
+		<link rel="stylesheet" href="{% static 'css/dropdown_nav.css' %}">
+		<link rel="stylesheet" href="{% static 'css/bootstrap_4_1_3_min.css' %}">
+		<link href="{% static 'css/font-awesome-4.7.0/css/font-awesome.min.css' %}" rel="stylesheet">
+		<link rel="stylesheet" href="{% static 'librairies/Parsley/parsley.css' %}">
+
+		{% block link_css %}{% endblock link_css %}
+		
+		<title>IH{% block title %}{% if request.path|url_matched %}-{{ request.path|url_matched }}{% endif %}{% endblock title %}</title>
+	</head>
+
+  <style>
+
+@font-face {
+	font-family: 'gothic';
+	src: url('.assets/fonts/gothics');
+}
+
+
+#flash-template {
+	font-family: "Times Roman","Century Gothic",sans-serif;
+	position: fixed;
+	bottom: 5%;
+	right: -50%;
+	font-weight: bold;
+	width: auto;
+	z-index: 99999999;
+}
+
+
+@media only screen and (max-width: 798px) {
+	#flash-template {
+		font-family: Arial, sans-serif;
+		font-weight: bold;
+		position: fixed;
+		top: 10%;
+		right: 0%;
+	}
+}
+  </style>
+	<body>
+
+		<div class="display-none" id="preloder">
+			<div class="loader"></div>
+		</div>
+
+		<div class="display-none" id="preloderBtn">
+			<div class="loaderBtn"></div>
+			<p>{{ "Chargement..."|trans:request }}<br>{{ "Patientez SVP!"|trans:request }}</p>
+		</div>
+
+		<div id="app-body"  style="margin-bottom: 150px;">
+
+			<section class="menu navbar-dark fixed-top">
+				<div class="nav_footer">
+					{% block nav_footer %}
+						{% include 'layouts/_navfooter.html' %}
+					{% endblock nav_footer %}
+				</div>
+			</section>
+
+			{% include 'layouts/_nav.html' %}
+
+			<div id="container">
+				
+				{% include 'layouts/_messages.html' %}
+				{% block content %}{% endblock content %}
+				{% block dash_content %}{% endblock dash_content %}
+
+				<div id="body-content" class="row">     
+					<div {% if Update or Error or saveanother%}{% else %}style="display:none;"{% endif %} class="table" id="dataTable" cellspacing="0">
+						<div id="dataTableHead"></div>
+						<div id="dataTableBody">
+							<div class="container">
+								{% block form_content %}{% endblock %}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<br><br><br><br><br>
+		</div>
+		{% include 'layouts/_footer.html' %}
+
+		<script src="{% static 'js/jquery3_3_1_.min.js' %}"></script>
+		<script src="{% static 'js/don.t_refresh.js' %}"></script>
+		<script src="{% static 'js/sweetalert2@8' %}"></script>
+		<script src="{% static 'librairies/Parsley/parsley.min.js' %}" type="text/javascript" charset="utf-8"></script>
+		<script src="{% static 'librairies/Parsley/i18n/fr.js' %}" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">	window.ParsleyValidator.setlocale('fr');</script>
+		<script src="{% static 'js/main.js' %}"></script>
+
+		{% block javascript %}{% endblock javascript %}
+
+
+		{% if messages %}
+		{% for message in messages %}
+		<script>
+			flashy("{{ message }}", "{{ message.tags }}");
+		</script>
+		{% endfor %}
+		{% endif %}
+
+		<script>
+				//script to search by ajax
+			function ActiveAjax(id, val) {
+				if(id == 'district'){
+					url = "{% url 'site_ajax' %}";
+					path = '#site';
+				} else if (id == 'f_district') {
+					url = "{% url 'site_ajax' %}";
+					path = '#f_site';
+				}else{
+					url = "";
+					path = ""
+				}
+				
+				    if (url != "" && path != "") {
+					$.ajax({
+						type: "POST",
+						url: url,
+						data: {
+							csrfmiddlewaretoken: getCookie('csrftoken'),
+							data_id: val,
+						},
+						success: function (response) {
+							console.log(response)
+							options = [];
+							options += '<option value=""></option>';
+							if (response["valid"]) {
+								for (item in response["data"]) {
+									let key = Object.keys(response['data'][item])[0]
+									let value = Object.values(response['data'][item])[0]
+									console.log()
+									options += '<option value="' + key + '">' + value + '</option>';
+								}
+							}
+							$(path).html(options);
+						}
+					});
+				}
+			} 
+		</script>
+
+		<script>
+			//script to search by ajax
+			function SearchTranslation(val) {
+					url = "{% url 'translation_ajax' %}";
+					path = '#TranslationData';
+
+				if (url != "" && path != "") {
+					$.ajax({
+						type: "POST",
+						url: url,
+						data: {
+							csrfmiddlewaretoken: getCookie('csrftoken'),
+							data_val: val,
+						},
+						success: function (response) {
+							//console.log(response)
+							tableBodyData = [];
+							if (response["valid"]) {
+								for (item in response["datas"]) {
+									//let key = Object.keys(response['data'][item])[0]
+									let id = Object.values(response['datas'][item])[0]
+									let trans_fr = Object.values(response['datas'][item])[1]
+									let trans_en = Object.values(response['datas'][item])[2]
+									let acronym_fr = Object.values(response['datas'][item])[3]
+									let acronym_en = Object.values(response['datas'][item])[4]
+									let update_url = "{% url 'translation' %}" + "update/" + id
+									let delete_url = "{% url 'translation' %}" + "delete/" + id
+									//console.log(id)
+									
+									if(acronym_fr != null && acronym_fr != ""){ var acr_fr = acronym_fr ;}else{ var acr_fr = '' ;}
+									if(acronym_en != null && acronym_en != ""){ var acr_en = acronym_en ;}else{ var acr_en = '' ;}
+
+
+
+									tableBodyData += '<tr> <td>' + trans_fr + '</td><td style="color:rgb(255, 0, 119);"><strong>' + trans_en +'</strong></td><td style="color:blue;"><strong>' + acr_fr + '</strong></td><td style="color:rgb(2, 148, 34);"><strong>' + acr_en + '</strong></td><td><a href="' + update_url + '"><i class="btn btn-warning fa fa-edit"></i></a></td><td><a class="" href="' + delete_url + '"><i class="btn btn-danger fa fa-trash"></i></a></td></tr>';
+								}
+							}
+							$(path).html(tableBodyData).show();
+						}
+					});
+				}
+			} 
+		</script>
+
+		{% if go_to_previous_page %}
+		<script>
+			document.getElementById('previous_url').click();
+		</script>
+		{% endif %}
+	</body>
+</html>

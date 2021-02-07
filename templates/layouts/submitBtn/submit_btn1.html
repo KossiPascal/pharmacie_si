@@ -1,0 +1,4 @@
+{% load functions_extras %}
+<input style="height:50px; font-size:16px;" type="submit" name="save"
+       class="btn {% if Update %}btn-warning{% else %}btn-success{% endif %} col-md-12"
+       value="{% if Update %}{{ 'modifier'|trans:request }}{% else %}{{ 'enrégistrer'|trans:request }}{% endif%}">

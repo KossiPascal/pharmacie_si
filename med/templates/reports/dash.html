@@ -1,0 +1,154 @@
+{% extends 'layouts/_base.html' %}
+
+{% load static %}
+{% load functions_extras %}
+
+{% block link_css %}
+    <link rel="stylesheet" href="{% static 'css/dashbord_tableau.css' %}">
+{% endblock link_css %}
+
+{% block nav_footer %}
+    <form method="post" action="" class="seach_form" id="filterForm">
+        {% csrf_token %}
+        <div class="row">
+            <div class="form-group spacer">
+                <select name="month" id="" class="form-control">
+                    <option selected hidden value="{% if dash_month != None and dash_month != '' %}{{dash_month}}{% endif %}">{% if dash_month != None and dash_month != '' %}{{ dash_month|get_label:'month'|trans:request }}{% else %}{{ 'tout mois'|trans:request }}{% endif %}</option>
+                    <option value="">{{ 'tout mois'|trans:request }}</option>
+                    {% for month in months %}
+                        <option value="{{ month.id }}">{{ month.month|trans:request }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+    
+            <div class="form-group spacer">
+                <select name="year" id="" class="form-control">
+                    <option selected hidden value="{% if dash_year != None and dash_year != '' %}{{dash_year}}{% endif %}">{% if dash_year != None and dash_year != '' %}{{ dash_year }}{% else %}{{ 'tout année'|trans:request }}{% endif %}</option>
+                    <option value="">{{ 'tout année'|trans:request }}</option>
+                    {% for year in years %}
+                        <option value="{{ year.year }}">{{ year.year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+    
+            <div class="form-group spacer">
+                <input class="form-control wait" name="data_filter" type="submit" value="{{ 'valider'|trans:request }}">
+            </div>
+        </div>
+    </form>
+
+{% endblock nav_footer %}
+
+
+{% block dash_content %}
+
+<style>
+     .separator-right{
+         border-right:10px solid white!important;
+     }
+
+     .separator-left{
+         border-left:10px solid white!important;
+     }
+</style>
+
+    <div class="dashb">
+        <div class="panel panel-info " >
+            <div class="table-responsive" >
+                <table class="table all_table" id="dataTable"  cellspacing="0">
+                    <thead class="head1">
+                        <tr class="head1_L1">
+                            <th class="separator-right separator-left" colspan="2">{{ "médicament"|trans:request }}</th>
+                            <th class="separator-right" colspan="4">{{ "cameg"|trans:request }}</th>
+                            <th class="separator-right" colspan="4">{{ 'pharmacie privée'|trans:request }}</th>
+                            <th class="separator-right" colspan="2">{{ 'général'|trans:request }}</th>
+                        </tr>
+                        {% for amount in total_amount_datas %}
+                            <tr class="head2">
+                                <th class="drug separator-right separator-left" colspan="2"><b style="font-size:20px; color:rgb(255, 136, 0);">{{ "dépensé de 2018 à "|trans:request }} {{ dash_year }}</b></th>
+                                <th class="stock separator-right" colspan="4"><i>{{ amount.cameg_served|separate_millier }}</i> F CFA</th>
+                                <th class="servi  separator-right" colspan="4"><i>{{ amount.ih_served|separate_millier }}</i> F CFA</th>
+                                <th class="global separator-right" colspan="2"><i>{{ amount.cameg_served|aggragate_sum:amount.ih_served|separate_millier }}</i> F CFA</th>
+                            </tr>
+                        {% endfor %}
+
+                        {% for amount in single_amount_datas %}
+                            <tr class="head2">
+                                <th class="drug separator-right separator-left" colspan="2"><b style="font-size:20px; color:rgb(76, 0, 255);">{{ 'dépensé en '|trans:request }} {{ dash_month|get_label:'month'|trans:request }} {{ dash_year }}</b></th>
+                                <th class="stock separator-right" colspan="4"><i>{{ amount.cameg_served|separate_millier }}</i> F CFA</th>
+                                <th class="servi  separator-right" colspan="4"><i>{{ amount.ih_served|separate_millier }}</i> F CFA</th>
+                                <th class="global separator-right" colspan="2"><i>{{ amount.cameg_served|aggragate_sum:amount.ih_served|separate_millier }}</i> F CFA</th>
+                            </tr>
+                        {% endfor %}
+                        <tr class="head3">
+                            <th class="drug separator-left">{{ 'n°'|trans:request }}<br></th>
+                            <th class="drug separator-right">{{ 'libellés'|trans:request }}<br></th>
+                            <th class="stock-cameg">{{ 'stock réèl'|trans:request }}</th>
+                            <!-- <th class="stock-cameg">STOCK <br> DE <br> PERIODE</th> -->
+                            <th class="servi-cameg">{{ 'servis sites'|trans:request }}</th>
+                            <th class="servi-cameg">{{ 'servis patients'|trans:request }}</th>
+                            <th class="restant-cameg separator-right">{{ 'quantité restante'|trans:request }}</th>
+                            
+                            <th class="stock-ih">{{ 'stock réèl'|trans:request }}</th>
+                            <!-- <th class="stock-ih">STOCK <br> DE <br> PERIODE</th> -->
+                            <th class="servi-ih">{{ 'servis sites'|trans:request }}</th>
+                            <th class="servi-ih">{{ 'servis patients'|trans:request }}</th>
+                            <th class="restant-ih  separator-right">{{ 'quantité restante'|trans:request }}</th>
+                            
+                            <th class="global">{{ 'date de péromption'|trans:request }}</th>
+                            <th class="global separator-right">{{ 'situation globale'|trans:request }}</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="body1">
+                        {% for data in datas %}
+                            <tr class="tbody_L_3_situation">
+                                <td class="drug separator-left">{{ data.n }}</td>
+                                <td class="separator-right"><b>{{ data.drug}}</b></td>
+                                <td class="stock-cameg"><b style="{% if data.cameg_stock < 0 %}color:red;{% endif %}">{{ data.cameg_stock }}</b></td>
+                                <!-- <td class="stock-cameg"><b style="{#% if data.new_cameg_stock < 0 %#}color:red;{#% endif %#}">{#{ data.new_cameg_stock }#}</b></td> -->
+                                <td class="servi-cameg">{{ data.cameg_served }}</td>
+                                <td class="servi-cameg">{{ data.patient_cameg_served }}</td>
+                                <td class="restant-cameg separator-right"><b style="{% if data.cameg_stock_remaining < 0 %}color:red;{% endif %}">{{ data.cameg_stock_remaining }}</b></td>
+                                
+                                <td class="stock-ih"><b style="{% if data.ih_stock < 0 %}color:red;{% endif %}">{{ data.ih_stock }}</b></td>
+                                <!-- <td class="stock-ih"><b style="{#% if data.new_ih_stock < 0 %#}color:red;{#% endif %#}">{#{ data.new_ih_stock }#}</b></td> -->
+                                <td class="servi-ih">{{ data.ih_served }}</td>
+                                <td class="servi-ih">{{ data.patient_ih_served  }}</td>
+                                <td class="restant-ih separator-right"><b style="{% if data.ih_stock_remaining < 0 %}color:red;{% endif %}">{{ data.ih_stock_remaining }}</b></td>
+                                
+                                <td class="">{{ data.expiry_date|convert_date:'fr' }}</td>
+                                <td class="separator-right"><b style="{{ data.situation|situation_style }}; white-space: nowrap!important;">
+                                        {% if data.cameg_stock_remaining < 0 or data.ih_stock_remaining < 0 %} 
+                                            <i style="color:red;text-align:center;">{{ 'stock NR'|trans:request }}</i>
+                                        {% else %}
+                                            {{ data.situation }}
+                                        {% endif %}</b>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        
+
+                        {% for r in range %}
+                            <tr style="color: black;" class="tbody_L_3_situation">
+                                <th>-</th>
+                                <th>-</th>
+                                <th>-</th>
+                                <th>-</th>
+                                <th>-</th>
+                                <th>-</th>
+                                <th>-</th>
+                                <th>-</th>
+                                <th>-</th>
+                                <th>-</th>
+                                <th>-</th>
+                                <th>-</th>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

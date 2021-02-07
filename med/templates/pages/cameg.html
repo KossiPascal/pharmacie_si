@@ -1,0 +1,167 @@
+{% extends 'layouts/_base.html' %}
+
+{% block content %}
+    {% load functions_extras %}
+    <!-- <form action="" method="post">
+        {#% csrf_token %#} -->
+        <table class="table table-striped container">
+            <thead style="background-color:orange" class="container" >
+                <tr style="background-color:white; color: black; text-align:center; font-size:30px" class="btn-danger">
+                    <th style="padding: 0px;" colspan="12">
+                        {{ "médicaments servies par"|trans:request }} <strong style="color:red;">{{ "cameg"|trans:request }}</strong> {{ "sur les différents sites"|trans:request }}
+                    </th>
+                </tr>
+
+                <tr >
+                    <!-- <th>{#{ "n°"|trans:request }#}</th> -->
+                    <th>{{ "date d'action"|trans:request }}</th>
+                    <th>{{ "année"|trans:request }}</th>
+                    <th>{{ "mois"|trans:request }}</th>
+                    <th>{{ "médicament"|trans:request }}</th>
+                    <th>{{ "district"|trans:request }}</th>
+                    <th>{{ "site"|trans:request }}</th>
+                    <th>{{ "quantité commandée"|getTransSigle:request }}</th>
+                    <th>{{ "quantité servie"|getTransSigle:request }}</th>
+                    <th>{{ "prix unitaire"|getTransSigle:request }}</th>
+                    <th>{{ "montant total"|trans:request }}</th>
+                    <th colspan="2" style="padding: 0px;">
+                        <!-- <a href="" class="btn btn-danger" style="padding: 1px; font-size:12px;" onclick="return confirm('Êtes vous sûr de vouloir supprimer Toutes les Enrégistrements?')">Tout Supprimer</a> -->
+                        <!-- <input class="btn btn-danger" style="padding: 1px; margin:0px; font-size:12px;" type="submit" id="delete_selection" name="delete_selection"> -->
+                        <!-- {#% if paginate.count > 0 %#}
+                            #(<strong id="data_count"> {{ paginate.count }} </strong>)
+                            {#% if paginate.count > 1 %#}
+                            {#% endif %#}	
+                            <a id="ShowCheckBoxToDeleteData" class="btn btn-default" style="padding: 1px; font-size:12px; color: red!important;font-weight:bold;" href="">Sélection Multiples</a>
+                            <input onclick="checkAllDataToBeDelete(this.id)" type="checkbox" name="delete_data" id="delete_data" value="delete_all_data">
+                            <input type="checkbox" id="confirm_checked">
+                        {#% endif %#} -->
+                    </th>
+                </tr>
+            </thead>
+
+    {% if dateError %}
+        <style>
+            #date{
+                border: solid red 3px;
+            }
+        </style>
+    {% endif %}
+        
+            <tbody class="container">
+                {% for data in paginate %}
+                    <tr style="{% if data.created_at|time_diff <= 5 or data.updated_at|time_diff <= 5 %}background:aqua; {% elif Error %}background:rgb(14, 46, 2); color:white; {% endif %}">
+                        {% with 'website'|siteLanguage:request as language %}
+                            <!-- <td>{#{ forloop }#}</td> -->
+                            <td>{{ data.date|convert_date:language }}</td>
+                            <td>{{ data.date|convert_date:"Y" }}</td>
+                            <td>{{ data.date|convert_date:"M"|trans:request }}</td>
+                            <td>{{ data.drug }}</td>
+                            <td>{{ data.district }}</td>
+                            <td>{{ data.site }}</td>
+                            <td>{{ data.quantity_ordered|separate_millier }}</td>
+                            <td style="color:blue;"><strong>{{ data.quantity_served|separate_millier }}</strong></td>
+                            <td>{{ data.unit_price|separate_millier }}</td>
+                            <td><strong>{{ data.total_amount|separate_millier }}</strong></td>
+                            <td><a href="{% url 'cameg_update' id=data.id %}"><i class="btn btn-warning fa fa-edit"></i></a></td>
+                            <!-- <td><input onchange="getCheckedOrNot(this.id)" class="data" style="float: right; zoom:1.5; margin-top:3px" type="checkbox" name="{#{data.id}#}" id="{#{data.id}#}" value="{#{data.id}#}"></td> -->
+                            <td><a class="delete" href="{% url 'cameg_delete' delete=data.id %}"><i class="btn btn-danger fa fa-trash"></i></a></td>
+                        {% endwith %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+    {% include 'layouts/_paginator.html' %}
+{% endblock %}
+
+{% block form_content %}
+    <form data-parsley-validate style="margin-top:170px" class="container" action="{% if Update != True %}{% url 'cameg_create' %}{% endif %}" method="POST">
+        <div  class="row">
+            <div class="col-md-12 col-12" style="background:black;text-align:center; font-weight:bold;">
+                <h3 class="new_registration">{{ "nouvel enrégistrement"|trans:request }}</h3> 
+            </div>
+
+            {% csrf_token %}
+
+            <div class="col-md-6 col-6" style="background:black;">
+                <div class="form-group" >
+                    <label class="control-label">{{ "date d'action"|trans:request }} </label>
+                    {{ form.date }}
+                </div>
+
+                <div class="form-group" >
+                    <label class="control-label">{{ "médicament"|trans:request }} </label>
+                    {{ form.drug }}
+                </div>
+
+                <div class="form-group" >
+                    <label class="control-label">{{ "district"|trans:request }} </label>
+                    {{ form.district }}
+                </div>
+
+                <div class="form-group" >
+                    <label class="control-label">{{ "site"|trans:request }} </label>
+                    <!-- {{ form.site }} -->
+                
+                    <select id="site" required="required" class="form-control" type="select" name="site">
+                        {% if e_site != None and e_site != '' %}
+                            <option selected hidden value="{{ e_site.id }}">
+                                {{ e_site.site }}
+                            </option>
+                        {% endif %}
+                        <option value="">---------</option>
+                        {% for site in Sites %}
+                        <option value="{{ site.id }}">{{ site.site }}</option>
+                        {% endfor %}
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6 col-6" style="background:black">
+                <div class="form-group" >
+                    <label class="control-label">{{ "quantité commandée"|trans:request }}</label>
+                    {{ form.quantity_ordered }}
+                </div>
+
+                <div class="form-group" >
+                    <label class="control-label">{{ "quantité servie"|trans:request }}</label>
+                    {{ form.quantity_served }}
+                    
+                    {% if not Update %}
+                    <label style="text-transform:capitalize; float:right; color:aquamarine;" for="add_to_stock">
+                        <input checked style="zoom: 1.5;" type="checkbox" name="add_to_stock" id="add_to_stock"> {{ "ajouter au stock"|trans:request }}
+                        <!-- <input style="display: none;" type="number" name="stock_quantity" id="stock_quantity" class="form-control" placeholder="quantité du stock"> -->
+                    </label>
+                    {% endif %}
+                </div>
+
+                <div class="form-group" >
+                    <label class="control-label">{{ "prix unitaire"|trans:request }}</label>
+                    {{ form.unit_price }}
+                </div> 
+
+                <div class="form-group" disabled="disabled">
+                    <label class="control-label">{{ "montant total"|trans:request }}</label>
+                    <div style="font-size: x-large;" id="result"></div>
+                    {{ form.total_amount }}
+                </div>
+            </div>
+    
+            <div class="form-group col-md-12" >
+                <div class="row">
+                    <div class="col-md-3 col-3">
+                        <a href="{% url 'cameg' %}" class="btn btn-danger col-md-12" style="padding-top:12px; padding-bottom:12px;">{{ "annuler"|trans:request }}</a>
+                    </div>
+                    <div class="{% if Update %}col-md-9 col-9{% else %}col-md-3 col-3{% endif%}">
+                        {% include 'layouts/submitBtn/submit_btn1.html' %}
+                    </div>
+                    <div style="{% if Update %}display:none;{% endif%}" class="col-md-6 col-6">
+                        {% include 'layouts/submitBtn/submit_btn2.html' %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

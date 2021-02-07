@@ -1,0 +1,15 @@
+{% extends 'layouts/_base.html' %}
+{% load static %}
+{% load functions_extras %}
+
+{% block nav_footer %}{% endblock nav_footer %}
+
+
+{% block content %}
+    <h1>USER PARAMS</h1>
+
+    <embed src={% static 'files/data.pdf' %} width=100% height=1000 type='application/pdf' />
+    
+{% endblock %}
+
+

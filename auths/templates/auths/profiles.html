@@ -1,0 +1,81 @@
+{% extends 'layouts/_base.html' %}
+{% load static %}
+
+{% block nav_footer %}{% endblock nav_footer %}
+{% load functions_extras %}
+{% block content %}
+
+<div style="margin-top: 50px;" class="container">
+    <div class="row mt-3">
+        <div class="col-md-2"></div>
+            <div class="col-md-8"> 
+
+                {% include 'layouts/_messages.html' %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h2 style="text-align: left; color:rgb(1, 44, 30)">{{ 'votre profile'|trans:request }}</h2>
+                        <div class="row">
+                            <div class="col-md-12">
+                                {% if Image_is_not_save %}
+                                <h2 style="text-align: center; color:rgb(117, 5, 5)">{{ "Problème avec votre Fichier Joint."|trans:request }}<br>{{ "Choisir Une Image!"|trans:request }}</h2>
+                                {% else %}
+                                <img src="/media/{{ request.session.large_user_profile_img_url }}" alt="{{ 'image de profile'|trans:request }}">
+                                {% endif %}
+                            </div>
+                            <div class="col-md-12">
+                                <h2>{{ user_form.username }}</h2>
+                                <h5>{{ user_form.email }}</h5>
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="col-md-6">
+                        <form data-parsley-validate method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label class="text-warning" for="last_name">{{ 'nom'|trans:request }} <span class="text-danger">*</span> </label>
+                                {{ user_form.last_name }}
+                            </div>
+                            <div class="form-group">
+                                <label class="text-warning" for="first_name">{{ 'prénoms'|trans:request }} <span class="text-danger">*</span> </label>
+                                {{ user_form.first_name }}
+                            </div>
+                            <div class="form-group">
+                                <label class="text-warning" for="username">{{ 'biographie'|trans:request }} </label>
+                                {{ profile_form.biography }}
+                            </div>
+
+                            <div class="form-group">
+                                <label class="text-warning" for="profile_pic">{{ "image de profile"|trans:request }}</label>
+                                <div class="form-control">
+                                    <label class="btn btn-default" id="profile_pic_label" for="id_profile_pic">
+                                        <div class="row">
+                                            <div id="picture_name_source" class="col-md-6 col-6">
+                                                {{ "choisir une image"|trans:request }}
+                                            </div>
+                                            <div id="picture_name_cible" class="col-md-6 col-6"></div>
+                                        </div>
+                                    </label>
+                                    {{ Image_profile_form.profile_pic}}
+                                </div>
+                            </div>
+
+                            <!-- <a href="" onclick="document.getElementById('fileID').click(); return false;">choisir</a> -->
+                            
+                            <!-- <input onChange="getFileName(this.id,document.getElementById('cible'))" type="file" id="fileID">
+                            <input id="cible" type="text" value=""> -->
+
+
+                            
+                            <div class="form-group">
+                                <button class="btn btn-primary" type="submit">{{ 'mettre à jour'|trans:request }}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2"></div>
+        </div>
+
+</div>
+{% endblock %}

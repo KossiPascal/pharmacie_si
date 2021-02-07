@@ -1,0 +1,153 @@
+{% extends 'layouts/_base.html' %}
+{% load functions_extras %}
+
+
+{% block nav_footer %}
+    <form method="post" action="" class="seach_form" id="filterForm">
+        {% csrf_token %}
+        <div class="row">
+            <div class="form-group spacer">
+                <select name="category" id="" class="form-control">
+                    {% if category != None and category != '' %}
+                    <option selected hidden value="{{ category.id }}">{{ category.category|trans:request }}</option>
+                    {% endif %}
+                    <option value="">{{ 'tout catégories'|trans:request }}</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.category|trans:request }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+    
+            <div class="form-group spacer">
+                <select name="availability" id="" class="form-control">
+                    {% if is_available %}
+                        <option selected hidden value="{{ 'available' }}">{{ 'disponible'|trans:request }}</option>
+                    {% elif is_not_available %}
+                        <option selected hidden value="{{ 'no_available' }}">{{ 'non disponible'|trans:request }}</option>
+                    {% endif %}
+                    <option value="">{{ 'disponibilité'|trans:request }}</option>
+                    <option value="{{ 'available' }}">{{ 'disponible'|trans:request }}</option>
+                    <option value="{{ 'no_available' }}">{{ 'non disponible'|trans:request }}</option>
+                </select>
+            </div>
+    
+            <div class="form-group spacer">
+                <input class="form-control wait" name="data_filter" type="submit" value="{{ 'valider'|trans:request }}">
+            </div>
+        </div>
+    </form>
+
+{% endblock nav_footer %}
+
+
+{% block content %}
+    <table class="table table-striped container">
+        <thead style="background-color:orange" class="container">
+            <tr style="background-color:white; color: black; text-align:center; font-size:30px" class="btn-danger">
+                <th style="padding: 0px;" colspan="12">
+                    <strong style="color:red;">{{ "liste des médicaments"|trans:request }}</strong>
+                </th>
+            </tr>
+
+            <tr>
+                <th>{{ "n°"|trans:request }}</th>
+                <th>{{ "médicament"|trans:request }}</th>
+                <th>{{ "stock restant cameg"|trans:request }}</th>
+                <th>{{ "stock restant si"|trans:request }}</th>
+                <th>{{ "catégorie"|trans:request }}</th>
+                <th>{{ "date de péromption"|trans:request }}</th>
+                <th>{{ "disponibilité"|trans:request }}</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+
+        {% if dateError %}
+        <style>
+            #date {
+                border: solid red 3px;
+            }
+        </style>
+        {% endif %}
+
+        <tbody class="container">
+            {% for data in paginate %}
+            <tr  style="{% if data.created_at|time_diff <= 5 or data.updated_at|time_diff <= 5 %}background:aqua;{% elif Error %}background:rgb(14, 46, 2); color:white; {% endif %}">
+                <td>{{ data.id }}</td>
+                <td style="color:blue;"><strong>{{ data.drug }}</strong></td>
+                <td>{{ data.id|available_quantity:'cameg' }}</strong></td>
+                <td>{{ data.id|available_quantity:'ih' }}</strong></td>
+                <td>{% if data.category != None and data.category != "" %}{{ data.category }}{% endif %}</td>
+                <td style="white-space: nowrap!important;">{{ data.expiry_date|convert_date }}</td>
+                <td>
+                    {% if data.is_available %}
+                        <b style="color:green;">{{ "disponible"|trans:request }}</b>
+                    {% else %}
+                        <i style="color:red;">{{ "non disponible"|trans:request }}</i>
+                    {% endif %}
+                </td>
+                <td><a href="{% url 'drug_update' id=data.id %}"><i class="btn btn-warning fa fa-edit"></i></a></td>
+                <td><a class="" href="{% url 'drug_delete' delete=data.id %}"><i class="btn btn-danger fa fa-trash"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+        {#% include 'layouts/_paginator.html' %#}
+{% endblock %}
+
+{% block form_content %}
+    <div class="row">
+        <div class="col-md-2 col-2"></div>
+        <div class="col-md-8 col-8">
+            <form data-parsley-validate style="margin-top:150px" class="container"
+                action="{% if Update != True %}{% url 'drug_create' %}{% endif %}" method="POST">
+                <div class="row">
+                    <div class="col-md-12 col-12" style="background:black;text-align:center; font-weight:bold;">
+                        <h3 class="new_registration">{{ "nouvel enrégistrement"|trans:request }}</h3>
+                    </div>
+
+                    {% csrf_token %}
+
+                    <div class="col-md-12 col-12" style="background:black;">
+                        <div class="form-group">
+                            <label class="control-label">{{ "médicament"|trans:request }} </label>
+                            {{ form.drug }}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">{{ "catégorie"|trans:request }}</label>
+                            {{ form.category }}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">{{ "date de péromption"|trans:request }}</label>
+                            {{ form.expiry_date }}
+                        </div>
+                        
+
+                        <div class="form-group">
+                            <label class="control-label">{{ "disponible"|trans:request }}</label>
+                            {{ form.is_available }}
+                        </div>
+                        
+
+                    </div>
+
+                    <div class="form-group col-md-12">
+                        <div class="row">
+                            <div class="col-md-4 col-4">
+                                <a href="{% url 'drug' %}" class="btn btn-danger col-md-12"
+                                    style="padding-top:12px; padding-bottom:12px;">{{ "annuler"|trans:request }}</a>
+                            </div>
+                            <div class="col-md-8 col-8">
+                                {% include 'layouts/submitBtn/submit_btn1.html' %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-2 col-2"></div>
+    </div>
+{% endblock %}

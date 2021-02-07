@@ -1,0 +1,109 @@
+{% load functions_extras %}
+
+{% if not request.path|url_matched:'dash' %}
+    <a class="btn btn-default navbar-dark " href="#" onclick="cacher()" title="{{ 'ajouter un enrégistrement'|trans:request }}">
+        {{ "ajouter"|trans:request }} <i class=" btn btn-success fa fa-plus"></i>
+    </a>
+
+    {% if request.path|url_matched:'translation' %}
+        <div class="row">
+            <div class="col-md-3 col-3"></div>
+            <div class="col-md-6 col-6">
+                <div class="form-group spacer">
+                    <input style="background:white; color:black;font-size:18px;" onkeyup="SearchTranslation(this.value)" type="search" name="search_translation"
+                        placeholder="{{ 'rechercher'|trans:request }}..." id="" class="form-control">
+                </div>
+            </div>
+            <div class="col-md-3 col-3"></div>
+        </div>
+        
+    {% endif %}
+{% endif %}
+
+<div id="price-infos">
+    {% if total_amount %}
+        {% if s_site != "" and s_site != None %}{{s_site_v}}{% else %}{{ 'tout site'|trans:request }}{% endif %}
+        <p>{{total_amount|separate_millier}}<small> FCFA</small></p>
+    {% endif %}
+</div>  
+
+
+{% if not noFooterNav %}
+        
+    <form method="post" action="" class="seach_form" id="filterForm">
+        {% csrf_token %}
+        <div class="row">
+            <div class="form-group spacer">
+                <input type="date" name="from" id="from" class="form-control" value="{% if s_date_from != '' %}{{s_date_from}}{% endif %}">
+            </div>
+
+            <div class="form-group spacer">
+                <input type="date" name="to" id="to" class="form-control" value="{% if s_date_to != '' %}{{s_date_to}}{% endif %}">
+            </div>
+    {% if request.path|url_matched:'cameg' or request.path|url_matched:'ih' %}
+            <div class="form-group spacer">
+                <select id="f_district" type="select" name="f_district" onchange="ActiveAjax(this.id, this.value);" class="form-control" autofocus>
+                    <option selected hidden value="{% if s_district != None and s_district != '' %}{{s_district}}{% endif %}">{% if s_district != None and s_district != "" %}{{s_district_v}}{% else %}{{ 'tout district'|trans:request }}{% endif %}</option>
+                    <option value="">{{ 'tout district'|trans:request }}</option>
+                    {% for district in f_district %}
+                    <option value="{{district.id}}">{{district.district}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group spacer">
+                <select id="f_site" type="select" name="f_site" class="form-control" placeholder="site" autofocus >
+                    <option selected hidden value="{% if s_site != None and s_site != '' %}{{ s_site }}{% endif %}">
+                        {% if s_site != None and s_site != '' %}{{s_site_v}}{% else %}{{ 'tout site'|trans:request }}{% endif %}
+                    </option>
+                    <option value="">{{ 'tout site'|trans:request }}</option>
+                    {% for site in f_site %}
+                    <option value="{{site.id}}">{{site.site}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+    {% endif %}
+
+    {% if request.path|url_matched:'stock' %}
+            <div class="form-group spacer">
+                <select type="select" name="f_drug_supplier" class="form-control" >
+                    <option selected hidden value="{% if s_drug_supplier != None and s_drug_supplier != '' %}{{ s_drug_supplier }}{% endif %}">{% if s_drug_supplier != None and s_drug_supplier != "" %}{{s_drug_supplier_v}}{% else %}{{ 'tout fournisseur'|trans:request }}{% endif %}</option>
+                    <option value="">{{ 'tout fournisseur'|trans:request }}</option>
+                    {% for drug_supplier in f_drug_supplier %}
+                    <option value="{{drug_supplier.id}}">{{drug_supplier.drug_supplier}}</option>
+                    {% endfor %}
+                </select>
+            </div>   
+    {% endif %}
+
+    {% if not request.path|url_matched:'dash' %}
+            <div class="form-group spacer">
+                <select type="select" name="f_drug" class="form-control " >
+                    <option selected hidden value="{% if s_drug != None and s_drug != '' %}{{ s_drug }}{% endif %}">{% if s_drug != None and s_drug != "" %}{{s_drug_v}}{% else %}{{ 'tout médicament'|trans:request }}{% endif %}</option>
+                    <option value="">{{ 'tout médicament'|trans:request }}</option>
+                    {% for drug in f_drug %}
+                    <option value="{{drug.id}}">{{drug.drug}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+    {% endif %}
+
+    {% if request.path|url_matched:'stock_adjustment' %}
+    <div class="form-group spacer">
+        <select type="select" name="f_drug_source" class="form-control ">
+            <option selected hidden value="{% if s_drug_source != None and s_drug_source != '' %}{{s_drug_source}}{% endif %}">{% if s_drug_source != None and s_drug_source != ""%}{{s_drug_source}}{% else %}{{ 'tout fournisseur'|trans:request }}{% endif %}
+            </option>
+            <option value="">{{ 'tout fournisseur'|trans:request }}</option>
+            <option value="{{ 'ih'|trans:request }}">{{ "ih"|trans:request }}</option>
+            <option value="{{ 'cameg'|trans:request }}">{{ "cameg"|trans:request }}</option>
+        </select>
+    </div>
+    {% endif %}
+            <div class="form-group spacer">
+                <input class="form-control wait" name="data_filter" type="submit" value="{{ 'valider'|trans:request }}">
+            </div>
+        </div>
+    </form>
+
+{% endif %}

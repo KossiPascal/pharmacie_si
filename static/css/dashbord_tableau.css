@@ -1,0 +1,147 @@
+.container_dash{
+  width:100%;
+  margin-right:0px;
+  margin-left:0px
+}
+
+@media (min-width:576px){
+  .container_dash{max-width:540px}
+}
+
+@media (min-width:768px){
+  .container_dash{max-width:720px}
+}
+
+@media (min-width:992px){
+  .container_dash{max-width:960px}
+}
+
+@media (min-width:1200px){
+  .container_dash{max-width:1140px}
+}
+
+
+
+
+
+.head1{
+  text-align:center;
+  background-color:#0891cf;
+    color:white;
+}
+
+.head1 i{
+    color:#008;
+    font-size: 20px;
+}
+
+.head2{
+  text-align:center;
+  background-color:white;
+  color:maroon;
+  font-size: 14px!important;
+}
+
+.head3{
+  text-align:center;
+  color:maroon;
+  font-size: 15px!important;
+  
+}
+
+
+.head4{
+
+  background-color:#fefefe;
+  color:#000;
+}
+
+
+.spacer{
+margin: 0 3px;
+}
+
+
+.head1 th{
+        padding:0px!important;
+    }
+
+.head1_L1{
+    font-size:25px!important;
+}
+
+
+
+.head3 .drug{
+    background: rgb(219, 213, 248);
+}
+.head3 .stock-cameg{
+    background: rgb(231, 250, 226);
+}
+.head3 .stock-ih{
+    background: rgb(212, 241, 177);
+}
+.head3 .servi-cameg{
+    background: rgb(252, 233, 244);
+}
+.head3 .servi-ih{
+    background: rgb(245, 190, 236);
+}
+.head3 .restant-cameg{
+    background: rgb(202, 230, 219);
+}
+.head3 .restant-ih{
+    background: rgb(210, 247, 216);
+}
+.head3 .global{
+    background: rgb(206, 187, 187);
+}
+
+
+
+.body1 .drug{
+    color: rgb(219, 213, 248);
+}
+.body1 .stock-cameg{
+    color: rgb(231, 250, 226);
+}
+.body1 .stock-ih{
+    color: rgb(212, 241, 177);
+}
+.body1 .servi-cameg{
+    color: rgb(252, 233, 244);
+}
+.body1 .servi-ih{
+    color: rgb(245, 190, 236);
+}
+.body1 .restant-cameg{
+    color: rgb(202, 230, 219);
+}
+.body1 .restant-ih{
+    color: rgb(210, 247, 216);
+}
+.body1 .global{
+    color: rgb(206, 187, 187);
+}
+body{
+  background-color: black;
+  color:white;
+    }
+
+.dash_served{
+  background-color: black;
+  color:white;
+  /* font-size:12px!important; */
+}
+
+
+
+.dashb{
+  padding-top:5px;
+}
+
+th, td {
+    border: 0.2px rgb(241, 234, 234) solid;
+    padding-top: 0px!important;
+    padding-bottom: 0px!important;
+}

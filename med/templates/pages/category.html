@@ -1,0 +1,82 @@
+{% extends 'layouts/_base.html' %}
+
+{% block content %}
+{% load functions_extras %}
+
+<table class="table table-striped container">
+    <thead style="background-color:orange" class="container">
+        <tr style="background-color:white; color: black; text-align:center; font-size:30px" class="btn-danger">
+            <th style="padding: 0px;" colspan="12">
+                <strong style="color:red;">{{ "catégories de Médicaments"|trans:request }}</strong>
+            </th>
+        </tr>
+
+        <tr>
+            <th>{{ "n°"|trans:request }}</th>
+            <th>{{ "catégorie"|trans:request }}</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+
+    {% if dateError %}
+    <style>
+        #date {
+            border: solid red 3px;
+        }
+    </style>
+    {% endif %}
+
+    <tbody class="container">
+        {% for data in datas %}
+        <tr style="{% if data.created_at|time_diff <= 5 or data.updated_at|time_diff <= 5 %}background:aqua; {% elif Error %}background:rgb(14, 46, 2); color:white; {% endif %}">
+                    
+            <td>{{ data.id }}</td>
+            <td style="color:blue;"><strong>{{ data.category }}</strong></td>
+            <td><a href="{% url 'category_update' id=data.id %}"><i class="btn btn-warning fa fa-edit"></i></a></td>
+            <td><a class="" href="{% url 'category_delete' delete=data.id %}"><i class="btn btn-danger fa fa-trash"></i></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
+
+{% block form_content %}
+<div class="row">
+    <div class="col-md-2 col-2"></div>
+    <div class="col-md-8 col-8">
+        <form data-parsley-validate style="margin-top:150px" class="container"
+            action="{% if Update != True %}{% url 'category_create' %}{% endif %}" method="POST">
+            <div class="row">
+                <div class="col-md-12 col-12" style="background:black;text-align:center; font-weight:bold;">
+                    <h3 class="new_registration">{{ "nouvel enrégistrement"|trans:request }}</h3>
+                </div>
+
+                {% csrf_token %}
+
+                <div class="col-md-12 col-12" style="background:black;">
+                    <div class="form-group">
+                        <label class="control-label">{{ "catégorie"|trans:request }}</label>
+                        {{ form.category }}
+                    </div>
+                </div>
+
+                <div class="form-group col-md-12">
+                    <div class="row">
+                        <div class="col-md-4 col-4">
+                            <a href="{% url 'category' %}" class="btn btn-danger col-md-12"
+                                style="padding-top:12px; padding-bottom:12px;">{{ "annuler"|trans:request }}</a>
+                        </div>
+                        <div class="col-md-8 col-8">
+                            {% include 'layouts/submitBtn/submit_btn1.html' %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-2 col-2"></div>
+</div>
+{% endblock %}

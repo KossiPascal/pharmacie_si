@@ -1,0 +1,26 @@
+{% extends 'layouts/_base.html' %}
+{% load functions_extras %}
+{% block nav_footer %}{% endblock nav_footer %}
+
+{% block content %}
+<div class="container">
+    <div class="jumbotron">
+            {% if user.is_authenticated %}
+                <h2>{{ "salut"|trans:request }}: {{ user.username }}</h2>
+            {% endif %}
+
+            <h1>{{ "application de gestion de médicaments"|trans:request }}</h1>
+            <p>{{ "pharmacie santé intégrée"|trans:request }}</p>
+            <p class="lead">
+                    {{"Créé dans le soucis de gérer les médicaments sortants et entrants. Elle concerne la CAMEG, les Site d'interventions deSanté Intégréé dans la région de la Kara, au Togo."|trans:request}}
+            <p><a href="https://integratehealth.org">{{ "santé intégrée"|trans:request }}</a></p>
+            </p>
+            {% if not user.is_authenticated %}
+                <a class="" href="{% url 'login' %}">{{ "se connecter"|trans:request }}</a> / 
+                <a class="" href="{% url 'register' %}">{{ "s'enrégistrer"|trans:request }}</a>
+            {% endif %}
+
+
+    </div>
+</div>
+{% endblock %}

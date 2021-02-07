@@ -1,0 +1,51 @@
+{% load functions_extras %}
+
+<div id="pagination_parent" class=" container">
+    {% if paginate.has_other_pages %}
+    <ul class="pagination">
+        
+        {% if paginate.number != 1 %}
+            <li><a style="background: rgb(210, 232, 238);" href="?page={{ '1' }}">&laquo;&laquo; {{ "premier"|trans:request }}</a></li>
+        {% else %}
+            <li><a class="active" href="?page={{ '1' }}">&laquo;&laquo; {{ "premier"|trans:request }}</a></li>
+        {% endif %}
+
+        {#% if paginate.has_previous %#}
+            <!-- <li><a href="?page={#{ paginate.previous_page_number }#}">&laquo; {#{ "précédent"|trans:request }#}</a></li> -->
+        {#% else %#}
+            <!-- <li class="disabled"><span>&laquo; précédent</span></li> -->
+        {#% endif %#}
+
+        {% for i in paginate.paginator.page_range %}
+            {% if paginate.number == i %}
+                {% if i != 1 and i != paginate.last_page_number%}
+                    <li class="active"><span>{{ i }}</span></li>
+                {% endif %}
+            {% elif paginate.number|add:1 == i or paginate.number|add:2 == i or paginate.number|add:3 == i or paginate.number|add:4 == i or paginate.number|add:300 == i %} 
+                {#% if i != paginate.last_page_number %#}
+                    <!-- <li><a href="?page={#{ i }#}">{#{ i }#}</a></li> -->
+                {#% endif %#}
+                    <li><a href="?page={{ i }}">{{ i }}</a></li>
+            {% elif paginate.number|substract:1 == i or  paginate.number|substract:2 == i or  paginate.number|substract:3 == i or  paginate.number|substract:4 == i  or paginate.number|substract:300 == i  %} 
+                {% if i != 1 %}
+                    <li><a href="?page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+
+        {#% if paginate.has_next %#}
+            <!-- <li><a href="?page={#{ paginate.next_page_number }#}">{#{ "suivant"|trans:request }#} &raquo;</a></li> -->
+        {#% else %#}
+            <!-- <li class="disabled"><span>suivant &raquo;</span></li> -->
+        {#% endif %#}
+        
+        {% if paginate.number != paginate.last_page_number %}
+            <li style="background: rgb(210, 232, 238);"><a href="?page={{ paginate.last_page_number }}">{{ "dernier"|trans:request}} &raquo;&raquo;</a></li>
+        {% else %}
+            <li class="active"><a href="?page={{ paginate.last_page_number }}">{{ "dernier"|trans:request}} &raquo;&raquo;</a></li>
+        {% endif %}
+            
+    </ul>
+    {% endif %}
+</div>

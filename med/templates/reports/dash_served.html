@@ -1,0 +1,185 @@
+{% extends 'layouts/_base.html' %}
+{% load static %}
+{% load functions_extras %}
+
+{% block link_css %}
+    <link rel="stylesheet" href="{% static 'css/dashbord_tableau.css' %}">
+{% endblock link_css %}
+
+{% block nav_footer %}
+    <form method="post" action="" class="seach_form" id="filterForm">
+        {% csrf_token %}
+        <div class="row">
+            <div class="form-group spacer">
+                <select name="year" id="" class="form-control">
+                    {% if dash_year != None and dash_year != '' %}
+                        <option selected hidden value="{{dash_year}}">{{ dash_year }}</option>
+                    {% endif %}
+                    <option value="">{{ 'tout année'|trans:request }}</option>
+                    {% for year in years %}
+                    <option value="{{ year.year }}">{{ year.year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group spacer">
+                <select name="data_source" id="data_source" class="form-control" required>
+                    {% if dash_source != None and dash_source != '' %}
+                        <option selected hidden value="{{ dash_source }}">{{ dash_source }}</option>
+                    {% endif %}
+                    <option value="all">{{ 'tout'|trans:request }}</option>
+                    <option value="ih">{{ 'ih'|trans:request }}</option>
+                    <option value="cameg">{{ "cameg"|trans:request }}</option>
+                </select>
+            </div>
+
+            <div class="form-group spacer">
+                <select name="district" id="district" class="form-control" onchange="ActiveAjax(this.id, this.value)">
+                    {% if dash_district != None and dash_district != '' %}
+                        <option selected hidden value="{{dash_district}}">{{ dash_district|get_label:'district' }}</option>
+                    {% endif %}
+                    <option value="">{{ 'tout district'|trans:request }}</option>
+                    {% for district in districts %}
+                    <option value="{{ district.id }}">{{ district.district }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group spacer">
+                <select name="site" id="site" class="form-control">
+                    {% if dash_site != None and dash_site != '' %}
+                        <option selected hidden value="{{dash_site}}">{{ dash_site|get_label:'site' }}</option>
+                    {% endif %}
+                    <option value="">{{ 'tout site'|trans:request }}</option>
+                    {% for site in sites %}
+                    <option value="{{ site.id }}">{{ site.site }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group spacer">
+                <input class="form-control wait" name="data_filter" type="submit" value="{{ 'valider'|trans:request }}">
+            </div>
+        </div>
+    </form>
+{% endblock nav_footer %}
+
+{% block content %}
+
+    <div class="dash_served" >
+        <div class="table-responsive" >
+            <table class="table" id="dataTable"  cellspacing="0">
+                <thead style="text-align: center;">
+                    <tr>
+                        <th colspan="2">
+                            <b style="font-size:15px; color:aqua;">
+                            {% if dash_district != None and dash_district != '' %}{{ dash_district|get_label:'district' }}{% endif %}
+                            {% if dash_site != None and dash_site != '' %}/ {{ dash_site|get_label:'site' }}{% endif %}
+                            </b>
+                        </th>
+                        <th colspan="13"> 
+                            {% if dash_source != None and dash_source != '' %}
+                                {{ "servies par"|trans:request }} <b>{% if dash_source == "ih" %}{{ 'santé intégrée'|trans:request}}{% else %}{{dash_source}}{% endif %}</b>
+                            {% endif %}
+                        </th>
+                    </tr>
+
+
+    
+                    {% for amount in datas_amount %}
+                        <tr>
+                            <th colspan="2">{{ "médicament"|trans:request }}</th>
+                            <th colspan="13" style="font-size: 20px; padding:0px"> 
+                                <b><i>{{ amount.total|separate_millier }} <small><small> FCFA</small></small></i></b>
+                            </th>
+                        </tr>
+                    {% endfor %}
+<style>
+    #amount th{
+        padding: 0px!important;
+    }
+</style>
+                    
+                    {% for amount in datas_amount %}
+                    <tr id="amount" style="font-size: x-small; padding:0px; margin:0px">
+                        <td colspan="2">{{ "montant total en FCFA"|getTransSigle:request }}</td>
+                        <th>{{ amount.jan|separate_millier }}</th>
+                        <th>{{ amount.fev|separate_millier }}</th>
+                        <th>{{ amount.mar|separate_millier }}</th>
+                        <th>{{ amount.avr|separate_millier }}</th>
+                        <th>{{ amount.mai|separate_millier }}</th>
+                        <th>{{ amount.jun|separate_millier }}</th>
+                        <th>{{ amount.jul|separate_millier }}</th>
+                        <th>{{ amount.aou|separate_millier }}</th>
+                        <th>{{ amount.sep|separate_millier }}</th>
+                        <th>{{ amount.ocb|separate_millier }}</th>
+                        <th>{{ amount.nov|separate_millier }}</th>
+                        <th>{{ amount.dec|separate_millier }}</th>
+                        <td rowspan="2">{{ "Total"|trans:request }}</td>
+                    </tr>
+                    {% endfor %}
+
+                    <tr>
+                        <th>{{ "n°"|getTransSigle:request }}</th>
+                        <th>{{ "liste des médicaments"|trans:request }}</th>
+                        <th>{{ "Janvier"|getTransSigle:request }}</th>
+                        <th>{{ "Février"|getTransSigle:request }}</th>
+                        <th>{{ "Mars"|getTransSigle:request }}</th>
+                        <th>{{ "Avril"|getTransSigle:request }}</th>
+                        <th>{{ "Mai"|getTransSigle:request }}</th>
+                        <th>{{ "Juin"|getTransSigle:request }}</th>
+                        <th>{{ "Juillet"|getTransSigle:request }}</th>
+                        <th>{{ "Août"|getTransSigle:request }}</th>
+                        <th>{{ "Septembre"|getTransSigle:request }}</th>
+                        <th>{{ "Octobre"|getTransSigle:request }}</th>
+                        <th>{{ "Novembre"|getTransSigle:request }}</th>
+                        <th>{{ "Décembre"|getTransSigle:request }}</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for data in datas %}
+                    <tr>
+                        <td>{{ data.n }}</td>
+                        <td><b style="font-size:small;">{{ data.drug }}</b></td>
+                        <td>{{ data.jan }}</td>
+                        <td>{{ data.fev }}</td>
+                        <td>{{ data.mar }}</td>
+                        <td>{{ data.avr }}</td>
+                        <td>{{ data.mai }}</td>
+                        <td>{{ data.jun }}</td>
+                        <td>{{ data.jul }}</td>
+                        <td>{{ data.aou }}</td>
+                        <td>{{ data.sep }}</td>
+                        <td>{{ data.ocb }}</td>
+                        <td>{{ data.nov }}</td>
+                        <td>{{ data.dec }}</td>
+                        <th>{{ data.total }}</th>
+                    </tr>
+                    {% endfor %}
+
+                    {% for r in range %}
+                    <tr style="color: black;" class="tbody_L_3_situation">
+                        <th>-</th>
+                        <th>-</th>
+                        <th>-</th>
+                        <th>-</th>
+                        <th>-</th>
+                        <th>-</th>
+                        <th>-</th>
+                        <th>-</th>
+                        <th>-</th>
+                        <th>-</th>
+                        <th>-</th>
+                        <th>-</th>
+                        <th>-</th>
+                        <th>-</th>
+                        <th>-</th>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

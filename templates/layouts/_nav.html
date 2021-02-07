@@ -1,0 +1,82 @@
+{% load functions_extras %}
+{% load static %}
+{% if not text_transform %}
+	<style>
+		input {
+			text-transform: uppercase !important;
+			/* text-transform:uppercase; */
+			/* text-transform: capitalize!important; */
+		}
+	</style>
+{% endif %}
+	
+<section class="nav navbar fixed-top">
+  <div class="container">
+	<a  href="{% url 'home' %}"><img id="logo" src="/media/images/SI.png" alt="Ih Logo"></a>
+      <nav>
+        <div class="nav-mobile"><a id="nav-toggle" href="#!"><span></span></a></div>
+          <ul class="nav-list ">
+			<a id="previous_url" href="javascript: history.back()"></a>
+			  
+			{% if user.is_authenticated %}
+			
+				<li><a class="wait {% if request.path|url_matched:'cameg' %}active{% endif %}" href="{% url 'cameg' %}">{{ "cameg"|trans:request }}</a></li>
+				<li><a class="wait {% if request.path|url_matched:'ih' %}active{% endif %}" href="{% url 'ih' %}">{{ "santé intégrée"|trans:request }}</a></li>
+				<li><a class="wait {% if request.path|url_matched:'patient' %}active{% endif %}" href="{% url 'patient' %}">{{ "patients"|trans:request }}</a></li>
+				<li><a class="wait {% if request.path|url_matched:'stock' %}active{% endif %}" href="{% url 'stock' %}">{{ "stock"|trans:request }}</a></li>
+				<li><a class="{% if request.path|url_matched:'drug' %}active{% endif %}" href="" onclick="return false;">{{ "autres pages"|trans:request }} ▾</a>
+					<ul class="nav-dropdown">
+						<li><a class="wait {% if request.path|url_matched:'drugs_list' %}active{% endif %}" href="{% url 'drug' %}">{{ "médicament"|trans:request }}</a></li>
+						<li><a class="wait {% if request.path|url_matched:'drug_supplier' %}active{% endif %}" href="{% url 'drug_supplier' %}">{{ "fournisseur"|trans:request }}</a></li>
+						<li><a class="wait {% if request.path|url_matched:'category' %}active{% endif %}" href="{% url 'category' %}">{{ "catégorie"|trans:request }}</a></li>
+						<li><a class="wait {% if request.path|url_matched:'year' %}active{% endif %}" href="{% url 'year' %}">{{ "année"|trans:request }}</a></li>
+						<li><a class="wait {% if request.path|url_matched:'month' %}active{% endif %}" href="{% url 'month' %}">{{ "mois"|trans:request }}</a></li>
+						<li><a class="wait {% if request.path|url_matched:'district' %}active{% endif %}" href="{% url 'district' %}">{{ "district"|trans:request }}</a></li>
+						<li><a class="wait {% if request.path|url_matched:'site' %}active{% endif %}" href="{% url 'site' %}">{{ "site"|trans:request }}</a></li>
+						<li><a class="wait {% if request.path|url_matched:'translation' %}active{% endif %}" href="{% url 'translation' %}">{{ "traduction"|trans:request }}</a></li>
+						<li><a class="wait {% if request.path|url_matched:'stock_adjustment' %}active{% endif %}" href="{% url 'stock_adjustment' %}"><strong style="color:rgb(253, 53, 80)">{{ "ajuster stock"|trans:request }}</strong></a></li>
+					</ul>
+				</li>
+				<li><a class="{% if request.path|url_matched:'dashborad' %}active{% endif %}" href="" onclick="return false;"> {{ "tableaux de bord"|trans:request }} ▾</a>
+					<ul class="nav-dropdown">
+						<li><a class="wait {% if request.path|url_matched:'general' %}active{% endif %}" href="{% url 'dash' %}">{{ "situation globale"|trans:request }}</a></li>
+						<li><a class="wait {% if request.path|url_matched:'served' %}active{% endif %}" href="{% url 'dashS' %}">{{ "situation individuelle"|trans:request }}</a></li>
+					</ul>
+				</li>
+				<li class="nav_profile">
+					<a style="background:rgb(71, 71, 1)" href="#">
+						<img src="/media/{% if request.session.small_user_profile_img_url and request.session.small_user_profile_img_url is not '' %}
+						{{ request.session.small_user_profile_img_url }}
+						{% else %}images/DefaultUserIcon.png{% endif %}" alt="Profile Img" class="avatar_ss">
+						{{request.user.username}} ▾
+					</a>
+					<ul class="nav-dropdown">
+						<li><a class="wait {% if request.path|url_matched:'userparams' %}active{% endif %}" href="{% url 'userparams' %}">{{ "paramettre utilisateur"|trans:request }}</a></li>
+						<li><a class="wait {% if request.path|url_matched:'admin' %}active{% endif %}" href="/ih_admin/" target="_blank" >{{ "Admin"|trans:request }}</a></li>
+						<li><a class="wait {% if request.path|url_matched:'profile' %}active{% endif %}" href="{% url 'profile' %}">{{ "profile"|trans:request }}</a></li>
+						<li><a style="background:rgb(87, 1, 1)" href="{% url 'logout' %}">{{ "se déconnecter"|trans:request }}</a></li><br>
+						<li><a href="{% static 'files/data.pdf' %}">{{ "guide utilisateur"|trans:request }}</a></li>
+					</ul>
+				</li>
+				<li style="margin-left: 25px;"><a href="#">{{ "langue"|trans:request }} {{ 'website'|siteLanguage:request }} ▾</a>
+					<ul class="nav-dropdown">
+						<form action="{% url 'language' %}" method="post">
+							{% csrf_token %}
+							<input type="hidden" name="url" value="{{ request.path }}">
+							<li><input style="padding:0px; color:white; width:100%;background:black;border:none;" name="language" type="submit" value="{{ 'anglais'|trans:request }}"></li>
+							<li><input style="padding:0px; color:white; width:100%;background:black;border:none;" name="language" type="submit" value="{{ 'français'|trans:request }}"></li>
+						</form>
+					</ul>
+				</li>
+			{% else %}
+				<li><a href="{% url 'login' %}">{{ "connection"|trans:request }}</a></li>
+				<li><a href="{% url 'register' %}">{{ "inscription"|trans:request }}</a></li>
+			{% endif %}
+          </ul>
+      </nav>
+  </div>
+</section>
+
+
+
+	

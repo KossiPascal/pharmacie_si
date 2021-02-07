@@ -1,0 +1,110 @@
+{% extends 'layouts/_base.html' %}
+{% load functions_extras %}
+
+{% block content %}
+
+<table class="table table-striped container">
+    <thead style="background-color:orange" class="container">
+        <tr style="background-color:white; color: black; text-align:center; font-size:30px" class="btn-danger">
+            <th style="padding: 0px;" colspan="12">
+                <strong style="color:red;">{{ "translation du site web"|trans:request }}</strong>
+            </th>
+        </tr>
+
+        <tr>
+            <th>{{ "français"|trans:request }}</th>
+            <th>{{ "anglais"|trans:request }}</th>
+            <th>{{ "sigle_fr"|trans:request }}</th>
+            <th>{{ "sigle_en"|trans:request }}</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+
+    {% if dateError %}
+    <style>
+        #date {
+            border: solid red 3px;
+        }
+    </style>
+    {% endif %}
+
+    <tbody id="TranslationData" class="container">
+        {% for data in paginate %}
+        <tr style="{% if data.created_at|time_diff <= 5 or data.updated_at|time_diff <= 5 %}background:aqua; {% elif Error %}background:rgb(14, 46, 2); color:white; {% endif %}">
+                    
+            <td style="color:blue;"><strong>{{ data.trans_fr }}</strong></td>
+            <td style="color:rgb(2, 148, 34);"><strong>{{ data.trans_en }}</strong></td>
+            <td style="color:rgb(140, 0, 255);"><strong>{% if data.acronym_fr != None and data.acronym_fr != "" %}{{ data.acronym_fr }}{% endif %}</strong></td>
+            <td style="color:rgb(255, 0, 119);"><strong>{% if data.acronym_en != None and data.acronym_en != "" %}{{ data.acronym_en }}{% endif %}</strong></td>
+            <td><a href="{% url 'translation_update' id=data.id %}"><i class="btn btn-warning fa fa-edit"></i></a></td>
+            <td><a class="delete" href="{% url 'translation_delete' delete=data.id %}"><i class="btn btn-danger fa fa-trash"></i></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% include 'layouts/_paginator.html' %}
+
+{% endblock %}
+
+{% block form_content %}
+<div class="row">
+    <div class="col-md-2 col-2"></div>
+    <div class="col-md-8 col-8">
+        <form data-parsley-validate style="margin-top:150px" class="container"
+            action="{% if Update != True %}{% url 'translation_create' %}{% endif %}" method="POST">
+            <div class="row">
+                <div class="col-md-12 col-12" style="background:black;text-align:center; font-weight:bold;">
+                    
+                    <h3 class="new_registration">{{ "nouvel enrégistrement"|trans:request }}</h3>
+                </div>
+
+                {% csrf_token %}
+
+                <div class="col-md-12 col-12" style="background:black;">
+                    <div class="form-group">
+                        <label class="control-label">{{ "sigle en français"|trans:request }}</label>
+                        {{ form.acronym_fr }}
+                    </div>
+                </div>
+
+                <div class="col-md-12 col-12" style="background:black;">
+                    <div class="form-group">
+                        <label class="control-label">{{ "sigle en anglais"|trans:request }}</label>
+                        {{ form.acronym_en }}
+                    </div>
+                </div>
+
+                <div class="col-md-12 col-12" style="background:black;">
+                    <div class="form-group">
+                        <label class="control-label">{{ "en français"|trans:request }}</label>
+                        {{ form.trans_fr }}
+                    </div>
+                </div>
+
+                <div class="col-md-12 col-12" style="background:black;">
+                    <div class="form-group">
+                        <label class="control-label">{{ "en anglais"|trans:request }}</label>
+                        {{ form.trans_en }}
+                    </div>
+                </div>
+
+                <div class="form-group col-md-12">
+                    <div class="row">
+                        <div class="col-md-4 col-4">
+                            <a href="{% url 'translation' %}" class="btn btn-danger col-md-12"
+                                style="padding-top:12px; padding-bottom:12px;">{{ "annuler"|trans:request }}</a>
+                        </div>
+                        <div class="col-md-8 col-8">
+                            {% include 'layouts/submitBtn/submit_btn1.html' %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-2 col-2"></div>
+</div>
+{% endblock %}
